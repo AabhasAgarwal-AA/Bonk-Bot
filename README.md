@@ -17,15 +17,3 @@ bun install
 # Step 4: Start the development server with auto-reloading and an instant preview.
 bun run index.ts
 ```
-
-To install dependencies:
-
-```bash
-
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
