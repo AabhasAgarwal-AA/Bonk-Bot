@@ -9,7 +9,7 @@ Follow these steps:
 git clone https://github.com/AabhasAgarwal-AA/Bonk-Bot
 
 # Step 2: Navigate to the project directory.
-cd Bink-Bot 
+cd Bonk-Bot 
 
 # Step 3: Install the necessary dependencies.
 bun install
