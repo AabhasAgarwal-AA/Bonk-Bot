@@ -9,4 +9,5 @@ function getEnv(key: string): string {
 export const env = {
     BOT_TOKEN: getEnv("BOT_TOKEN"),
     CONNECTION_URL: getEnv("CONNECTION_URL"), 
+    USDC_MINT: getEnv("USDC_MINT")
 };

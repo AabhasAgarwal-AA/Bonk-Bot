@@ -6,7 +6,7 @@ import { env } from "../env";
 const connection = new Connection(env.CONNECTION_URL);
 
 export function sendSol(bot: any, USERS: Record<string, Keypair>, PENDING_REQUESTS: Record<string, {
-    type: "SEND_SOL" | "SEND_TOKEN", 
+    type: "SEND_SOL" | "SEND_TOKEN" | "BUY_MEMECOIN" | "SEND_MEMCOIN", 
     amount?: number, 
     to?: string 
 }>){
@@ -36,7 +36,7 @@ export function sendSol(bot: any, USERS: Record<string, Keypair>, PENDING_REQUES
 
     bot.on(message("text"), async (ctx: any) => {
         const userId = ctx.from?.id;
-        if (!userId) return;
+        if (!userId) return; 
 
         const pending = PENDING_REQUESTS[userId];
         if (!pending || pending.type !== "SEND_SOL") return; 
@@ -53,17 +53,20 @@ export function sendSol(bot: any, USERS: Record<string, Keypair>, PENDING_REQUES
                 });
             } catch {
                 await ctx.reply("Invalid Solana address. Try again.");
+                delete PENDING_REQUESTS[userId];
                 return;
             }
         }
 
         const amount = Number(ctx.message.text);
         if (!Number.isFinite(amount) || amount <= 0) {
-            await ctx.reply("Please enter a valid SOL amount.");
+            await ctx.reply("Please enter a valid SOL amount, this transaction has being canceled, please try again");
+            delete PENDING_REQUESTS[userId];
             return;
         }
 
         if(!pending.to){
+            delete PENDING_REQUESTS[userId];
             return; 
         }
 
@@ -72,11 +75,15 @@ export function sendSol(bot: any, USERS: Record<string, Keypair>, PENDING_REQUES
         const sender = USERS[userId];
         const receiver = new PublicKey(pending.to);
 
-        if(!sender) return;
+        if(!sender){
+            delete PENDING_REQUESTS[userId];
+            return; 
+        } 
 
         const balance = await connection.getBalance(sender.publicKey);
         if (balance < amount * LAMPORTS_PER_SOL) {
             await ctx.reply("Insufficient balance.");
+            delete PENDING_REQUESTS[userId];
             return;
         }
 
@@ -113,28 +120,5 @@ export function sendSol(bot: any, USERS: Record<string, Keypair>, PENDING_REQUES
         delete PENDING_REQUESTS[userId];
     })
 
-    bot.on(message("text"), (ctx: any) => {
-        const userId = ctx.from?.id; 
-        
-        if(PENDING_REQUESTS[userId]?.type == "SEND_SOL"){
-            if(!PENDING_REQUESTS[userId]?.to){
-
-                // TODO: Check here if it is a valid public key
-                
-                PENDING_REQUESTS[userId].to = ctx.message.text; 
-                ctx.sendMessage("How much sol do you want to send...");
-            } else {
-                const amount = ctx.message.text; 
-                // TODO: Check if this is a valid amount
-                // TODO: Check if user has this much SOL in their wallet.
-                // TODO: Create a txn and forward it to the blockchain
-                ctx.sendMessage(`Initiated a transaction for ${amount} SOL to ${PENDING_REQUESTS[userId].to}`, {
-                    parse_mode: 'Markdown', 
-                    ...Keyboard
-                }); 
-                delete PENDING_REQUESTS[userId];
-
-            }
-        }
-    })
+    return; 
 }

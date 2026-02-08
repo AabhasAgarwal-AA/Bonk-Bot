@@ -10,12 +10,14 @@ import { checkBalance } from './actions/CheckBalance';
 import { transactionHistory } from './actions/TransactionHistory';
 import { sendSol } from './actions/SendSol';
 import { sendToken } from './actions/SendToken';
+import { buyMemecoin } from './actions/BuyMemecoin';
+import { sendMemecoin } from './actions/SendMemecoin';
 
 
 const bot = new Telegraf(env.BOT_TOKEN);
 const USERS: Record<string, Keypair> = {};
 const PENDING_REQUESTS: Record<string, {
-    type: "SEND_SOL" | "SEND_TOKEN", 
+    type: "SEND_SOL" | "SEND_TOKEN" | "BUY_MEMECOIN" | "SEND_MEMCOIN"
     amount?: number, 
     to?: string 
 }> = {};
@@ -29,5 +31,7 @@ checkBalance(bot, USERS);
 transactionHistory(bot, USERS);
 sendSol(bot, USERS, PENDING_REQUESTS);
 sendToken(bot, USERS, PENDING_REQUESTS);
+buyMemecoin(bot, USERS, PENDING_REQUESTS); 
+sendMemecoin(bot, USERS, PENDING_REQUESTS);
 
 await bot.launch();

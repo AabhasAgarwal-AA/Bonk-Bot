@@ -106,6 +106,10 @@ export function transactionHistory(bot: any, USERS: Record<string, Keypair>){
                     [
                         Markup.button.callback('💸 Send SOL', 'send_sol_menu'),
                         Markup.button.callback('🪙 Send Token', 'send_token_menu')
+                    ], 
+                    [
+                        Markup.button.callback('🐸 Buy Memecoins', 'buy_memecoin_menu'), 
+                        Markup.button.callback('➢ Send Memecoins', 'send_memecoin_menu')
                     ]
                 ])
             });
