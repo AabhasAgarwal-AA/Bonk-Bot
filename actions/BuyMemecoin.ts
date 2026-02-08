@@ -116,8 +116,15 @@ export function buyMemecoin(bot: any, USERS: Record<string, Keypair>, PENDING_RE
 
             const amountInSmallestUnit = Math.floor(amount * 1_000_000);
 
+            const params = new URLSearchParams({
+                inputMint: inputMint.toBase58(),
+                outputMint: outputMint.toBase58(),
+                amount: amountInSmallestUnit.toString(),
+                slippageBps: "50",
+                restrictIntermediateTokens: "true",
+            });
             const quotesRes = await fetch(
-                `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint.toBase58()}&outputMint=${outputMint.toBase58()}&amount=${amountInSmallestUnit}&slippageBps=50`
+                `https://api.jup.ag/swap/v1/quote?${params.toString()}`
             );
             const quote = await quotesRes.json(); 
             if(! quote?.data.lenght){
@@ -126,11 +133,11 @@ export function buyMemecoin(bot: any, USERS: Record<string, Keypair>, PENDING_RE
                 return; 
             }
 
-            const swapRes = await fetch("https://quote-api.jup.ag/v6/swap", {
+            const swapRes = await fetch("https://api.jup.ag/swap/v1/swap", {
                 method: "POST", 
                 headers: {"Content-Type": "application/json"}, 
                 body: JSON.stringify({
-                    quoteResponse: quote.data[0], 
+                    quoteResponse: quote,
                     userPublicKey: sender.publicKey.toBase58(), 
                     wrapAndUnwrapSol: true 
                 }), 
